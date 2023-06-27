@@ -36,7 +36,7 @@ userRoute.post('/register', async (req, res) => {
 
 userRoute.post('/login', async (req, res) => {
     const { email, password } = req.body;
-    let user = User.findOne({ email });
+    let user = await User.findOne({ email });
     if (user) {
         if (bcrypt.compareSync(password, user.password)) {
             let accessToken = jwt.sign({
@@ -46,8 +46,8 @@ userRoute.post('/login', async (req, res) => {
                 email, isAdmin: user.isAdmin
             }, process.env.refreshToken, { expiresIn: '7d' });
 
-            await client.setEx(`${email}access`,'1h',accessToken);
-            await client.setEx(`${email}refresh`,'7d',refreshToken);
+            await client.setEx(`${email}access`,60*60,accessToken);
+            await client.setEx(`${email}refresh`,60*60*7*24,refreshToken);
             res.status(200).send({
                 isError: false,
                 message: "login successfull",
@@ -69,15 +69,17 @@ userRoute.post('/login', async (req, res) => {
 
 })
 
-userRoute.post('logout', async(req, res) => {
+userRoute.post('/logout', async(req, res) => {
    let {email} = req.body;
     try {
         let accessToken = await client.get(`${email}access`);
         let refreshToken = await client.get(`${email}refresh`);
-        await client.set(`${email}access`, null);
-        await client.set(`${email}refresh`, null);
+
+        await client.set(`${email}access`, "");
+        await client.set(`${email}refresh`, "");
         await client.set(`${email}blackaccess`, accessToken);
-        await client.set(`${email}refresh`, refreshToken);
+        await client.set(`${email}blackrefresh`, refreshToken);
+        
         res.status(200).send({
             isError: false,
             message: "logout successfull",
@@ -85,7 +87,7 @@ userRoute.post('logout', async(req, res) => {
     } catch (error) {
         res.status(400).send({
             isError: true,
-            error
+            error:"jmd"
         })
     }
 })
