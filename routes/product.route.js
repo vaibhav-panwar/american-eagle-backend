@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { Product } = require('../models/products.model');
-
+const {productAdminAuth} = require('../middlewares/productAuth');
 
 const productRoute = Router();
 
@@ -19,7 +19,7 @@ productRoute.get("/", async (req, res) => {
     }
 })
 
-productRoute.post('/', async (req, res) => {
+productRoute.post('/',productAdminAuth, async (req, res) => {
     try {
         let { title, image1, image2, gender, category, price, description, size, discount, quantity } = req.body;
         let prod = new Product({ title, image1, image2, gender, category, price, description, size, discount, quantity });
@@ -37,7 +37,7 @@ productRoute.post('/', async (req, res) => {
     }
 })
 
-productRoute.patch('/:id', async (req, res) => {
+productRoute.patch('/:id',productAdminAuth, async (req, res) => {
     let { id } = req.params;
     try {
         await Product.findByIdAndUpdate(id, req.body);
@@ -53,7 +53,7 @@ productRoute.patch('/:id', async (req, res) => {
     }
 })
 
-productRoute.delete('/:id', async (req, res) => {
+productRoute.delete('/:id',productAdminAuth, async (req, res) => {
     let { id } = req.params;
     try {
         await Product.findByIdAndDelete(id);
