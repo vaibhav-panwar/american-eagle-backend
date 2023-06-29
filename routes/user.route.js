@@ -40,10 +40,10 @@ userRoute.post('/login', async (req, res) => {
     if (user) {
         if (bcrypt.compareSync(password, user.password)) {
             let accessToken = jwt.sign({
-                email, isAdmin: user.isAdmin
+                email, isAdmin: user.isAdmin , id:user._id
             }, process.env.accessToken, { expiresIn: '60s' });
             let refreshToken = jwt.sign({
-                email, isAdmin: user.isAdmin
+                email, isAdmin: user.isAdmin , id:user._id
             }, process.env.refreshToken, { expiresIn: '1d' });
 
             await client.setEx(`${email}access`,60,accessToken);

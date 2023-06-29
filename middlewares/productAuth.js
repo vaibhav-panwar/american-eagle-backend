@@ -62,7 +62,7 @@ const reRefreshToken = async (req, res, next) => {
       try {
         let refreshData = jwt.verify(refreshTok, process.env.refreshToken);
         let accessTok = jwt.sign({
-          email: refreshData.email, isAdmin: refreshData.isAdmin
+          email: refreshData.email, isAdmin: refreshData.isAdmin,id:refreshData.id
         }, process.env.accessToken, { expiresIn: '60s' });
         await client.setEx(`${email}access`, 60 , accessTok);
         next();
@@ -82,4 +82,4 @@ const reRefreshToken = async (req, res, next) => {
   }
 }
 
-module.exports = { productAdminAuth }
+module.exports = { productAdminAuth , reRefreshToken}
