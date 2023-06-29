@@ -41,13 +41,13 @@ userRoute.post('/login', async (req, res) => {
         if (bcrypt.compareSync(password, user.password)) {
             let accessToken = jwt.sign({
                 email, isAdmin: user.isAdmin
-            }, process.env.accessToken, { expiresIn: '1h' });
+            }, process.env.accessToken, { expiresIn: '60s' });
             let refreshToken = jwt.sign({
                 email, isAdmin: user.isAdmin
-            }, process.env.refreshToken, { expiresIn: '7d' });
+            }, process.env.refreshToken, { expiresIn: '1d' });
 
-            await client.setEx(`${email}access`,60*60,accessToken);
-            await client.setEx(`${email}refresh`,60*60*7*24,refreshToken);
+            await client.setEx(`${email}access`,60,accessToken);
+            await client.setEx(`${email}refresh`,60*60*24,refreshToken);
             res.status(200).send({
                 isError: false,
                 message: "login successfull",
@@ -71,23 +71,30 @@ userRoute.post('/login', async (req, res) => {
 
 userRoute.post('/logout', async(req, res) => {
    let {email} = req.body;
-    try {
-        let accessToken = await client.get(`${email}access`);
-        let refreshToken = await client.get(`${email}refresh`);
+    let accessToken = await client.get(`${email}access`);
+    let refreshToken = await client.get(`${email}refresh`);
+    if(refreshToken){
+        try {
+            await client.set(`${email}access`, "");
+            await client.set(`${email}refresh`, "");
+            await client.set(`${email}blackaccess`, accessToken);
+            await client.set(`${email}blackrefresh`, refreshToken);
 
-        await client.set(`${email}access`, "");
-        await client.set(`${email}refresh`, "");
-        await client.set(`${email}blackaccess`, accessToken);
-        await client.set(`${email}blackrefresh`, refreshToken);
-        
-        res.status(200).send({
-            isError: false,
-            message: "logout successfull",
-        })
-    } catch (error) {
+            res.status(200).send({
+                isError: false,
+                message: "logout successfull",
+            })
+        } catch (error) {
+            res.status(400).send({
+                isError: true,
+                error
+            })
+        }
+    }
+    else{
         res.status(400).send({
             isError: true,
-            error:"jmd"
+            error:"you are already logged out"
         })
     }
 })
