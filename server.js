@@ -8,6 +8,8 @@ const {userRoute} = require('./routes/user.route');
 const {productRoute} = require('./routes/product.route');
 const { cartRoute } = require('./routes/cart.route');
 const { orderRouter } = require('./routes/order.route');
+const { addressRoute } = require('./routes/address.route');
+
 
 const app = express();
 app.use(express.json());
@@ -17,6 +19,7 @@ app.use('/user',userRoute);
 app.use('/product',productRoute);
 app.use('/cart',cartRoute);
 app.use('/order',orderRouter);
+app.use('/address',addressRoute);
 
 
 app.listen(process.env.port,async()=>{
