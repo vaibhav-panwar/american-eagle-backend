@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const orderSchema = mongoose.Schema({
+const orderSchema =new mongoose.Schema({
     userID: {
         type: String,
         required: [true, 'userID not available']
