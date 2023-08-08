@@ -6,7 +6,12 @@ const productRoute = Router();
 
 productRoute.get("/", async (req, res) => {
     try {
+        const totalCount = await Product.countDocuments();
         let data = await Product.find();
+        res.set({
+            'X-Total-Count': totalCount,
+            'Access-Control-Expose-Headers': 'X-Total-Count'
+        })
         res.status(200).send({
             isError: false,
             data

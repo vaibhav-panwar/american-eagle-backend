@@ -15,6 +15,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get('/',(req,res)=>{
+    res.send("base point");
+})
 app.use('/user', userRoute);
 app.use('/product', productRoute);
 app.use('/cart', cartRoute);
